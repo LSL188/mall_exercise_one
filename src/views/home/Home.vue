@@ -3,6 +3,13 @@
     <nav-bar>
       <div slot="middle">购物街</div>
     </nav-bar>
+    <tab-control
+      :title="['流行', '新款', '精选']"
+      @tabControl="homeTabClick"
+      ref="tabControlOne"
+      v-show="isTabFixed"
+      class="tab-control-one"
+    ></tab-control>
     <scroll
       class="scrollWrapper"
       ref="scroll"
@@ -11,12 +18,13 @@
       :pull-up-load="true"
       @pullingUp="wrapperPullUp"
     >
-      <home-swiper :banner="banners"></home-swiper>
+      <home-swiper :banner="banners" @swiperImgLoad="homeSwiperImgLoad"></home-swiper>
       <home-recommend :recommend="recommends"></home-recommend>
       <home-week></home-week>
       <tab-control
         :title="['流行', '新款', '精选']"
         @tabControl="homeTabClick"
+        ref="tabControl"
       ></tab-control>
       <goods-list :goodslists="showGoodsType"></goods-list>
     </scroll>
@@ -41,7 +49,7 @@ import BackTop from "components/content/backtop/BackTop";
 
 import { getHomeData, getHomeGoods } from "network/home.js";
 
-import {debounce} from 'common/utils' 
+import { debounce } from "common/utils";
 export default {
   data() {
     return {
@@ -53,7 +61,10 @@ export default {
         sell: { page: 0, list: [] }
       },
       currentType: "pop",
-      isShowBackTop: false
+      isShowBackTop: false,
+      tabOffsetTop: 0,
+      isTabFixed: false,
+      saveY: 0
     };
   },
   created() {
@@ -67,6 +78,13 @@ export default {
     this.$bus.$on("imgLoad", () => {
       newRefresh();
     });
+  },
+  deactivated() {
+    this.saveY = this.$refs.scroll.getScrollY()
+  },
+  activated() {
+    this.saveY = this.$refs.scroll.scrollTo(0, this.saveY, 0)
+    this.$refs.scroll.refresh()
   },
   components: {
     NavBar,
@@ -109,6 +127,8 @@ export default {
         this.currentType = "sell";
       }
       // console.log(this.currentType)
+      this.$refs.tabControl.currentIndex = index
+      this.$refs.tabControlOne.currentIndex = index
     },
     // 回到顶部
     backTop() {
@@ -119,10 +139,16 @@ export default {
     wrapperScroll(position) {
       // console.log(position)
       this.isShowBackTop = -position.y > 1000;
+      this.isTabFixed = -position.y > this.tabOffsetTop 
     },
     // 上拉加载
     wrapperPullUp() {
       this._getHomeGoods(this.currentType);
+    },
+    // 监听轮播图图片加载完毕
+    homeSwiperImgLoad() {
+      // console.log(this.$refs.tabControl.$el.offsetTop)
+      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
     }
   },
   computed: {
@@ -146,6 +172,10 @@ export default {
     position: fixed;
     right: 8px;
     bottom: 55px;
+  }
+  .tab-control-one {
+    position: relative;
+    z-index: 2;
   }
 }
 </style>

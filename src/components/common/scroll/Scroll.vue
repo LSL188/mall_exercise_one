@@ -27,7 +27,8 @@ export default {
   mounted() {
     this.scroll = new BScroll(this.$refs.wrapper, {
       probeType: this.probeType,
-      pullUpLoad: this.pullUpLoad
+      pullUpLoad: this.pullUpLoad,
+      click: true
     });
 
     if (this.probeType === 2 || this.probeType === 3) {
@@ -52,8 +53,11 @@ export default {
       this.scroll && this.scroll.finishPullUp()
     },
     refresh() {
-      console.log('1414')
+      // console.log('1414')
       this.scroll && this.scroll.refresh()
+    },
+    getScrollY() {
+      return this.scroll? this.scroll.y : 0
     }
   }
 };

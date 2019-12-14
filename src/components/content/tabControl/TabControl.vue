@@ -41,6 +41,7 @@ export default {
   display: flex;
   text-align: center;
   padding: 10px;
+  background-color: #fff;
   .tab-item {
     flex: 1;
     span {
