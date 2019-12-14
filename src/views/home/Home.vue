@@ -3,7 +3,14 @@
     <nav-bar>
       <div slot="middle">购物街</div>
     </nav-bar>
-    <scroll class="scrollWrapper" ref="scroll" :probe-type="3" @scroll="wrapperScroll">
+    <scroll
+      class="scrollWrapper"
+      ref="scroll"
+      :probe-type="3"
+      @scroll="wrapperScroll"
+      :pull-up-load="true"
+      @pullingUp="wrapperPullUp"
+    >
       <home-swiper :banner="banners"></home-swiper>
       <home-recommend :recommend="recommends"></home-recommend>
       <home-week></home-week>
@@ -13,7 +20,11 @@
       ></tab-control>
       <goods-list :goodslists="showGoodsType"></goods-list>
     </scroll>
-    <back-top class="back-top" @click.native="backTop" v-show="isShowBackTop"></back-top>
+    <back-top
+      class="back-top"
+      @click.native="backTop"
+      v-show="isShowBackTop"
+    ></back-top>
   </div>
 </template>
 
@@ -25,10 +36,12 @@ import HomeRecommend from "./childCpn/HomeRecommend";
 import HomeWeek from "./childCpn/HomeWeek";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/goods/GoodsList";
-import Scroll from 'components/common/scroll/Scroll'
-import BackTop from 'components/content/backtop/BackTop'
+import Scroll from "components/common/scroll/Scroll";
+import BackTop from "components/content/backtop/BackTop";
 
 import { getHomeData, getHomeGoods } from "network/home.js";
+
+import {debounce} from 'common/utils' 
 export default {
   data() {
     return {
@@ -48,6 +61,12 @@ export default {
     this._getHomeGoods("pop");
     this._getHomeGoods("new");
     this._getHomeGoods("sell");
+  },
+  mounted() {
+    const newRefresh = debounce(this.$refs.scroll.refresh, 1000);
+    this.$bus.$on("imgLoad", () => {
+      newRefresh();
+    });
   },
   components: {
     NavBar,
@@ -76,6 +95,7 @@ export default {
         this.goodslist[type].list.push(...res.data.list);
         // console.log(this.goodslist[type].list)
         this.goodslist[type].page + 1;
+        this.$refs.scroll.finishPullUp();
       });
     },
     // 点击了子组件的tabControl
@@ -93,12 +113,16 @@ export default {
     // 回到顶部
     backTop() {
       // console.log('11')
-      this.$refs.scroll.scrollTo(0, 0)
+      this.$refs.scroll.scrollTo(0, 0);
     },
     // 显示/隐藏
     wrapperScroll(position) {
       // console.log(position)
-      this.isShowBackTop = -(position.y) > 1000
+      this.isShowBackTop = -position.y > 1000;
+    },
+    // 上拉加载
+    wrapperPullUp() {
+      this._getHomeGoods(this.currentType);
     }
   },
   computed: {

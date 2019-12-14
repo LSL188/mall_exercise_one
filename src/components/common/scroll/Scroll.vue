@@ -18,11 +18,16 @@ export default {
     probeType: {
       type: Number,
       default: 0
+    },
+    pullUpLoad: {
+      type: Boolean,
+      default: false
     }
   },
   mounted() {
     this.scroll = new BScroll(this.$refs.wrapper, {
-      probeType: this.probeType
+      probeType: this.probeType,
+      pullUpLoad: this.pullUpLoad
     });
 
     if (this.probeType === 2 || this.probeType === 3) {
@@ -31,10 +36,24 @@ export default {
         this.$emit("scroll", position);
       });
     }
+
+    if (this.pullUpLoad) {
+      this.scroll.on("pullingUp", () => {
+        // console.log('pull')
+        this.$emit("pullingUp");
+      });
+    }
   },
   methods: {
     scrollTo(x, y, time = 500) {
       this.scroll && this.scroll.scrollTo(x, y, time);
+    },
+    finishPullUp() {
+      this.scroll && this.scroll.finishPullUp()
+    },
+    refresh() {
+      console.log('1414')
+      this.scroll && this.scroll.refresh()
     }
   }
 };
