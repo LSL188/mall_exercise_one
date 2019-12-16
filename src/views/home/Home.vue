@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <nav-bar>
+    <nav-bar class="home-nav">
       <div slot="middle">购物街</div>
     </nav-bar>
     <tab-control
@@ -18,7 +18,10 @@
       :pull-up-load="true"
       @pullingUp="wrapperPullUp"
     >
-      <home-swiper :banner="banners" @swiperImgLoad="homeSwiperImgLoad"></home-swiper>
+      <home-swiper
+        :banner="banners"
+        @swiperImgLoad="homeSwiperImgLoad"
+      ></home-swiper>
       <home-recommend :recommend="recommends"></home-recommend>
       <home-week></home-week>
       <tab-control
@@ -80,11 +83,11 @@ export default {
     });
   },
   deactivated() {
-    this.saveY = this.$refs.scroll.getScrollY()
+    this.saveY = this.$refs.scroll.getScrollY();
   },
   activated() {
-    this.saveY = this.$refs.scroll.scrollTo(0, this.saveY, 0)
-    this.$refs.scroll.refresh()
+    this.saveY = this.$refs.scroll.scrollTo(0, this.saveY, 0);
+    this.$refs.scroll.refresh();
   },
   components: {
     NavBar,
@@ -127,8 +130,8 @@ export default {
         this.currentType = "sell";
       }
       // console.log(this.currentType)
-      this.$refs.tabControl.currentIndex = index
-      this.$refs.tabControlOne.currentIndex = index
+      this.$refs.tabControl.currentIndex = index;
+      this.$refs.tabControlOne.currentIndex = index;
     },
     // 回到顶部
     backTop() {
@@ -139,7 +142,7 @@ export default {
     wrapperScroll(position) {
       // console.log(position)
       this.isShowBackTop = -position.y > 1000;
-      this.isTabFixed = -position.y > this.tabOffsetTop 
+      this.isTabFixed = -position.y > this.tabOffsetTop;
     },
     // 上拉加载
     wrapperPullUp() {
@@ -148,7 +151,7 @@ export default {
     // 监听轮播图图片加载完毕
     homeSwiperImgLoad() {
       // console.log(this.$refs.tabControl.$el.offsetTop)
-      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
+      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop;
     }
   },
   computed: {
@@ -161,8 +164,14 @@ export default {
 
 <style scoped lang="less">
 .home {
-  padding-top: 44px;
+  // padding-top: 44px;
   position: relative;
+  .home-nav {
+    background-color:@navColor;
+    color: #fff;
+    position: relative;
+    z-index: 9;
+  }
   .scrollWrapper {
     position: absolute;
     top: 44px;
